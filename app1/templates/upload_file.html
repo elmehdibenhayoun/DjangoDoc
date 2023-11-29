@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block title %}DoConv{% endblock %}
+
+{% block header %}Upload File{% endblock %}
+
+{% block content %}
+    <h2>Upload only CSV, Json, or Excel File</h2>
+    {% if form.errors %}
+        <div class="error-message">
+            {% for error in form.errors %}
+                <p>{{ error.0 }}</p>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Upload</button>
+    </form>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            document.getElementById("id_file").addEventListener("change", function() {
+                var fileName = this.value;
+                var ext = fileName.split('.').pop().toLowerCase();
+
+                if (['csv', 'json', 'xlsx'].indexOf(ext) === -1) {
+                    alert("Unsupported file type. Please upload a CSV, JSON, or Excel file.");
+                    this.value = "";  // Clear the file input
+                }
+            });
+        });
+    </script>
+{% endblock %}
