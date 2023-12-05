@@ -1,56 +1,52 @@
 {% extends 'base.html' %}
 
 {% block content %}
-  <h2>Upload Successful</h2>
-  <p>Your file has been successfully uploaded and processed.</p>
+    <div class="flex justify-center items-center h-screen">
+        <div class="w-full max-w-md">
+            <h2 class="text-2xl font-semibold mb-6">Upload Successful</h2>
+            <p>Your file has been successfully uploaded and processed.</p>
 
-  <h3>Select a Column to Display</h3>
-  <form method="post" action="{% url 'uploaded' %}">
-    {% csrf_token %}
+            <h3 class="mt-6 mb-2">Select a Column to Display</h3>
+            <form method="post" action="{% url 'uploaded' %}" class="mb-6">
+                {% csrf_token %}
 
-    <input type="hidden" name="selected_column_name" value="{{ selected_column_name }}">
+                <div class="mb-4">
+                    <label for="column_name1" class="block text-gray-700 text-sm font-bold mb-2">Select Column 1:</label>
+                    <select name="column_name1" id="column_name1" class="w-full border border-gray-300 rounded py-2 px-3">
+                        {% for column_name in column_names %}
+                            <option value="{{ column_name }}">{{ column_name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
 
-    <select name="column_name1">
-      {% for column_name in column_names %}
-        <option value="{{ column_name }}">{{ column_name }}</option>
-      {% endfor %}
-    </select>
-    <select name="column_name2">
-      {% for column_name in column_names %}
-        <option value="{{ column_name }}">{{ column_name }}</option>
-      {% endfor %}
-    </select>
-        
-         
-      <select  name="graph">
-          <option value="1">Line Plot</option>
-          <option value="2">Scatter Plot</option>
-          <option value="3">Boxplot</option>
-          <option value="4">Histogram</option>
-          <option value="5">KDE Plot</option>
-          <option value="6">Violin Plot</option>
-          <option value="7">Bar Plot</option>
-          <option value="8">Heatmap</option>
-          <option value="9">Pie Chart</option>
-      </select>
-    
-    
-    
-    <button type="submit">Display Graph</button>
-  </form>
-  <!-- {% if selected_column_name %}
-    <h2>Graph for Column: {{ selected_column_name }}</h2>
-    {% if graph_file_path %}
-        <img src="{% load static %}{% static 'graphique.png' %}" alt="Graphique de la colonne sélectionnée">
-    {% else %}
-        <p>Aucun graphique disponible.</p>
-    {% endif %}
-  {% else %}
-    <p>Aucune colonne sélectionnée.</p>
-  {% endif %} -->
-  {% if graph_image %}
-    <img src="data:image/png;base64,{{ graph_image }}" alt="Graph for {{ selected_column_name }}">
-{% else %}
-    <p>Aucun graphique disponible.</p>
-{% endif %}
+                <div class="mb-4">
+                    <label for="column_name2" class="block text-gray-700 text-sm font-bold mb-2">Select Column 2:</label>
+                    <select name="column_name2" id="column_name2" class="w-full border border-gray-300 rounded py-2 px-3">
+                        {% for column_name in column_names %}
+                            <option value="{{ column_name }}">{{ column_name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="mb-4">
+                    <label for="graph" class="block text-gray-700 text-sm font-bold mb-2">Select Graph Type:</label>
+                    <select name="graph" id="graph" class="w-full border border-gray-300 rounded py-2 px-3">
+                        {% for graph_type_code, graph_type_display in graph_type_choices %}
+                            <option value="{{ graph_type_code }}">{{ graph_type_display }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Display Graph</button>
+            </form>
+          </div>
+            {% if graph_html %}
+                
+                    {{ graph_html | safe }}
+                
+            {% else %}
+                <p class="mt-6">Aucun graphique disponible.</p>
+            {% endif %}
+        </div>
+    </div>
 {% endblock %}

@@ -6,20 +6,22 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Your Site Name{% endblock %}</title>
+    <!-- Include Tailwind CSS styles -->
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <!-- Add your CSS stylesheets or links here -->
 </head>
-<body>
+<body class="font-sans bg-gray-100">
 
-    <header>
-        <h1>{% block header %} Header{% endblock %}</h1>
+    <header class="bg-blue-500 p-4 text-white">
+        <h1 class="text-2xl font-bold">{% block header %}Header{% endblock %}</h1>
         <!-- Add navigation or other header elements here -->
     </header>
 
-    <main>
+    <main class="container mx-auto my-4">
         {% block content %}{% endblock %}
     </main>
 
-    <footer>
+    <footer class="bg-blue-500 p-4 text-white">
         <!-- Add footer content here -->
     </footer>
 
