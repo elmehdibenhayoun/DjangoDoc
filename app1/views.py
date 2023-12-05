@@ -3,12 +3,12 @@ from django.shortcuts import render, redirect
 from .forms import FileUploadForm
 from .models import SelectedGraphType
 import pandas as pd
+import numpy as np
 import os
 import matplotlib.pyplot as plt
 from django.conf import settings
 from io import BytesIO
 import base64
-import seaborn as sns
 import plotly.express as px
 import plotly.io as pio
 from plotly.subplots import make_subplots
@@ -73,15 +73,24 @@ def uploaded(request):
         if selected_column_name1 not in column_names or selected_column_name2 not in column_names:
             return HttpResponse("Invalid column names")
 
+        aggregated_df = df.groupby(selected_column_name1, as_index=False).agg({selected_column_name2: np.mean})
+
+
         fig = None
         if selected_graph_type:
         # Check the selected graph type
             if selected_graph_type == '1':
                 # Line Plot
-                fig = px.line(df, x=selected_column_name1, y=selected_column_name2, markers=True)
+                if selected_column_name1 != selected_column_name2:
+                    # If x and y columns are different, create a line plot
+                    fig = px.line(aggregated_df, x=selected_column_name1, y=selected_column_name2, markers=True)
+                else:
+                    # If x and y columns are the same, aggregate and create a line plot
+                    aggregated_df = df.groupby(selected_column_name1, as_index=False).agg({selected_column_name2: np.mean})
+                    fig = px.line(aggregated_df, x=selected_column_name1, y=selected_column_name2, markers=True)
             elif selected_graph_type == '2':
                 # Scatter Plot
-                fig = px.scatter(df, x=selected_column_name1, y=selected_column_name2, title=f'Scatter Plot for {selected_column_name1} and {selected_column_name2}')
+                fig = px.scatter(aggregated_df, x=selected_column_name1, y=selected_column_name2, title=f'Scatter Plot for {selected_column_name1} and {selected_column_name2}')
             elif selected_graph_type == '3':
                 # Box Plot
                 fig = px.box(df, x=selected_column_name1, y=selected_column_name2)
@@ -161,166 +170,3 @@ def uploaded(request):
         'column_names': column_names,
         'graph_type_choices': SelectedGraphType.GRAPH_TYPE_CHOICES,
     })
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# def uploaded(request):
-#     # Retrieve column names from the session
-#     column_names = request.session.get('column_names', [])
-
-#     # Retrieve selected columns and graph type from POST data
-#     selected_column_name1 = request.POST.get('column_name1')
-#     selected_column_name2 = request.POST.get('column_name2')
-#     selected_graph_type = request.POST.get('graph')
-
-#     # Check the selected graph type
-#     graph_type_choices = SelectedGraphType.GRAPH_TYPE_CHOICES
-#     selected_graph_display = dict(graph_type_choices).get(selected_graph_type, 'Unknown Graph Type')
-
-#     if selected_graph_type:
-#         selected_graph_obj = SelectedGraphType(graph_type=selected_graph_type)
-#         selected_graph_obj.save()
-
-#     # Set the title for the selected graph type
-#     if selected_graph_type and selected_graph_display:
-#         plt.title(f'{selected_graph_display} for {selected_column_name1} and {selected_column_name2}')
-
-#      # Create a Plotly figure
-#     fig = make_subplots()
-
-#     # Check the selected graph type
-#     if selected_graph_type == '1':
-#         # Line Plot
-#         fig.add_trace(go.Scatter(x=df[selected_column_name1], y=df[selected_column_name2], mode='lines+markers'))
-#     elif selected_graph_type == '2':
-#         # Scatter Plot
-#         fig.add_trace(go.Scatter(x=df[selected_column_name1], y=df[selected_column_name2], mode='markers'))
-#     elif selected_graph_type == '3':
-#         # Box Plot
-#         fig.add_trace(go.Box(x=df[selected_column_name1], y=df[selected_column_name2]))
-#     elif selected_graph_type == '4':
-#         # Histogram
-#         fig.add_trace(go.Histogram(x=df[selected_column_name1]))
-#     elif selected_graph_type == '5':
-#         # KDE Plot
-#         fig.add_trace(go.Histogram2dContour(
-#             x=df[selected_column_name1],
-#             y=df[selected_column_name2],
-#             colorscale='Viridis',
-#             reversescale=True,
-#             contours=dict(coloring='heatmap')
-#     ))
-#     elif selected_graph_type == '6':
-#         # Violin Plot
-#         fig.add_trace(go.Violin(
-#             x=df[selected_column_name1],
-#             y=df[selected_column_name2],
-#             box_visible=True,
-#             line_color='black',
-#             meanline_visible=True,
-#             fillcolor='lightseagreen',
-#             opacity=0.6,
-#             box_mean='sd'
-#         ))
-#     elif selected_graph_type == '7':
-#         # Bar Plot
-#         fig.add_trace(go.Bar(
-#             x=df[selected_column_name1],
-#             y=df[selected_column_name2]
-#         ))
-#     elif selected_graph_type == '8':
-#         # Heatmap
-#         correlation_matrix = df.corr()
-#         fig = px.imshow(correlation_matrix,
-#                         labels=dict(color="Correlation"),
-#                         x=column_names,
-#                         y=column_names,
-#                         color_continuous_scale='Viridis')
-#         fig.update_layout(title='Heatmap')
-#     elif selected_graph_type == '9':
-#         # Pie Chart
-#         category_counts = df[selected_column_name1].value_counts()
-#         fig = px.pie(category_counts,
-#                     values=category_counts,
-#                     names=category_counts.index,
-#                     title=f'Pie Chart for {selected_column_name1}')
-
-
-#     # Update layout as needed
-#     fig.update_layout(title=f'{selected_graph_type} for {selected_column_name1} and {selected_column_name2}')
-
-#     # Convert the figure to HTML
-#     graph_html = pio.to_html(fig, full_html=False)
-
-#     # Pass the Plotly HTML to the template
-#     return render(request, 'uploaded.html', {
-#         'column_names': column_names,
-#         'selected_column_name1': selected_column_name1,
-#         'selected_column_name2': selected_column_name2,
-#         'selected_graph_type': selected_graph_type,
-#         'graph_type_choices': graph_type_choices,
-#         'graph_html': graph_html
-#     })
