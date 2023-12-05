@@ -51,6 +51,38 @@ def upload_file(request):
     return render(request, 'upload_file.html', {'form': form})
 
 
+
+
+
+def calculate_statistics(df, selected_column_name1, selected_column_name2):
+    # Calculate your custom statistics
+    mean_value = df[selected_column_name2].mean()
+    median_value = df[selected_column_name2].median()
+    mode_value = df[selected_column_name2].mode().iloc[0]
+    range_value = df[selected_column_name2].max() - df[selected_column_name2].min()
+    variance_value = df[selected_column_name2].var()
+    std_deviation_value = df[selected_column_name2].std()
+    count_value = df[selected_column_name2].count()
+
+    # Create a dictionary to store the statistics
+    statistics_dict = {
+        'Mean': mean_value,
+        'Median': median_value,
+        'Mode': mode_value,
+        'Range': range_value,
+        'Variance': variance_value,
+        'Standard Deviation': std_deviation_value,
+        'Count': count_value,
+    }
+
+    # Convert the dictionary to a DataFrame for better formatting
+    statistics_df = pd.DataFrame(list(statistics_dict.items()), columns=['Statistic', 'Value'])
+
+    return statistics_df.to_html(classes='table table-striped table-bordered', index=False)
+
+
+
+
 def uploaded(request):
     # Retrieve column names from the session
     column_names = request.session.get('column_names', [])
@@ -74,6 +106,10 @@ def uploaded(request):
             return HttpResponse("Invalid column names")
 
         aggregated_df = df.groupby(selected_column_name1, as_index=False).agg({selected_column_name2: np.mean})
+
+        # Calculate summary statistics for the selected columns
+        statistics_df = df[[selected_column_name1, selected_column_name2]].describe()
+
 
 
         fig = None
@@ -100,7 +136,7 @@ def uploaded(request):
             elif selected_graph_type == '5':
                 # KDE Plot
                 fig = px.density_heatmap(df, x=selected_column_name1, y=selected_column_name2,
-                                        marginal_x="histogram", marginal_y="histogram")
+                                        marginal_x="rug", marginal_y="rug")
             elif selected_graph_type == '6':
                 # Violin Plot
                 fig = px.violin(df, x=selected_column_name1, y=selected_column_name2, box=True, points="all")
@@ -148,6 +184,9 @@ def uploaded(request):
             if 'df' : 
                 print(" df is present ")
 
+            # Calculate custom statistics
+            statistics = calculate_statistics(df, selected_column_name1, selected_column_name2)
+
             fig.update_layout(
                 paper_bgcolor='rgba(0,0,0,0)',  # Transparent
                 plot_bgcolor='rgba(0,0,0,0)'    # Transparent
@@ -162,6 +201,7 @@ def uploaded(request):
                 'selected_column_name2': selected_column_name2,
                 'selected_graph_type': selected_graph_type,
                 'graph_type_choices': SelectedGraphType.GRAPH_TYPE_CHOICES,
+                'statistics': statistics,
                 'graph_html': graph_html
             })
 
