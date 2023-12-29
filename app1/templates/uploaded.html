@@ -3,10 +3,7 @@
 {% block content %}
     <div class="flex justify-center items-center h-screen">
         <div class="w-full max-w-md">
-            <h2 class="text-2xl font-semibold mb-6">Upload Successful</h2>
-            <p>Your file has been successfully uploaded and processed.</p>
-
-            <h3 class="mt-6 mb-2">Select a Column to Display</h3>
+            <h2 class="text-2xl font-semibold mb-6">Select a Column to Display</h2>
             <form method="post" action="{% url 'uploaded' %}" class="mb-6">
                 {% csrf_token %}
 
@@ -22,7 +19,7 @@
                 <div class="mb-4">
                     <label for="column_name2" class="block text-gray-700 text-sm font-bold mb-2">Select Column 2:</label>
                     <select name="column_name2" id="column_name2" class="w-full border border-gray-300 rounded py-2 px-3">
-                        {% for column_name in column_names %}
+                        {% for column_name in numeric_columns %}
                             <option value="{{ column_name }}">{{ column_name }}</option>
                         {% endfor %}
                     </select>
@@ -39,20 +36,19 @@
 
                 <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Display Graph</button>
             </form>
-
         </div>  
-        <div>
+
+        <div class="flex justify-center items-center h-screen">
           {% if graph_html %}
-              
-                  {{ graph_html | safe }}
-              
+              {{ graph_html | safe }}
           {% else %}
               <p class="mt-6">Aucun graphique disponible.</p>
           {% endif %}
+        </div> 
+        <div class="flex justify-center items-center h-screen">
           {% if statistics %}
-                    <h3 class="text-2xl font-semibold mb-6">Summary Statistics for {{ selected_column_name1 }} and {{ selected_column_name2 }}</h3>
-                    {{ statistics | safe }}
-            {% endif %}
+              {{ statistics | safe }}
+          {% endif %}
         </div>        
     </div>
 {% endblock %}

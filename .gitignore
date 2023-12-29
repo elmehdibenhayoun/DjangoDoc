@@ -1,1 +1,4 @@
-.venv/
+*.sqlite3
+venv/
+static/
+media/uploads/
