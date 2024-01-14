@@ -32,14 +32,14 @@ DocViz simplifie le processus d'analyse et de visualisation des données, offran
 
 ## Execution : 
 
-1. **python -m venv venv
+1. **python -m venv venv**
 
-2. **.\venv\Scripts\activate 
+2. **.\venv\Scripts\activate**
 
-3. **pip install -r requirements.txt
+3. **pip install -r requirements.txt**
 
-4. **python manage.py makemigrations
+4. **python manage.py makemigrations**
 
-5. **python manage.py migrate
+5. **python manage.py migrate**
 
-6. **python manage.py runserver
+6. **python manage.py runserver**
